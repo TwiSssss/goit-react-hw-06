@@ -1,24 +1,31 @@
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import style from "./ContactForm.module.css";
+import { useDispatch } from "react-redux";
+import { addContact } from "../../redux/contactsSlice";
 
+const initialState = {
+    username: "",
+    number: "",
+};
 const FeedbackSchema = Yup.object().shape({
     username: Yup.string().min(2, "Too Short!").max(50, "Too Long!").required("Required"),
     number: Yup.string().min(2, "Too Short!").max(50, "Too Long!").required("Required"),
 });
-
-const ContactForm = ({ contacts, setContacts }) => {
-    const addContact = (values, { resetForm }) => {
-        const newContact = {
-            id: crypto.randomUUID(),
-            name: values.username,
-            number: values.number,
-        };
-        setContacts([...contacts, newContact]);
+const ContactForm = () => {
+    const dispatch = useDispatch();
+    const handleAddContact = (values, { resetForm }) => {
+        dispatch(
+            addContact({
+                id: crypto.randomUUID(),
+                name: values.username,
+                number: values.number,
+            })
+        );
         resetForm();
     };
     return (
-        <Formik validationSchema={FeedbackSchema} initialValues={{ username: "", number: "" }} onSubmit={addContact}>
+        <Formik validationSchema={FeedbackSchema} initialValues={initialState} onSubmit={handleAddContact}>
             <Form className={style.formBox}>
                 <label className={style.formLabel}>Name</label>
                 <Field className={style.formInput} type="text" name="username" />
@@ -33,4 +40,5 @@ const ContactForm = ({ contacts, setContacts }) => {
         </Formik>
     );
 };
+
 export default ContactForm;
